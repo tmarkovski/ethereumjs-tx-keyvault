@@ -37,44 +37,33 @@ var Extensions = function () {
      * @param {String} keyVersion the version of the key
      * @return {Buffer} the signed transaction object
      */
-    Extensions.prototype.sign = function (tx, client, vaultUri, keyName, keyVersion) {
+    Extensions.prototype.sign = async function (tx, client, vaultUri, keyName, keyVersion) {
         assert.equal(true, tx instanceof EthereumTx, "Transaction must be of type 'require(\"ethereumjs-tx\")'")
         assert.equal(true, client instanceof KeyVault.KeyVaultClient, "Client must be of type 'require(\"azure-keyvault\").KeyVaultClient'")
 
-        return new Promise((resolve, reject) => {
-            client.getKey(vaultUri, keyName, keyVersion, null, function (getErr, getKeyBundle) {
-                if (getErr) {
-                    reject(getErr)
-                    return
-                }
-                const msgHash = tx.hash(false)
+        const keyBundle = await client.getKey(vaultUri, keyName, keyVersion)
 
-                client.sign(vaultUri, keyName, keyVersion, "ECDSA256", msgHash, null, function (signErr, signature) {
-                    if (signErr) {
-                        reject(signErr)
-                        return
-                    }
-                    const pubKey = Buffer.concat([Uint8Array.from([4]), getKeyBundle.key.x, getKeyBundle.key.y])
-                    const sig = makeCanonical(Buffer.from(signature.result))
+        const msgHash = tx.hash(false)
+        const signature = await client.sign(vaultUri, keyName, keyVersion, "ECDSA256", msgHash)
 
-                    var sigObj = {
-                        r: sig.slice(0, 32),
-                        s: sig.slice(32, 64)
-                    }
+        const pubKey = Buffer.concat([Uint8Array.from([4]), keyBundle.key.x, keyBundle.key.y])
+        const sig = makeCanonical(Buffer.from(signature.result))
 
-                    for (var i = 0; i < 4; i++) {
-                        const recoveredPubKey = secp256k1.recover(msgHash, sig, i, false)
-                        if (_.isEqual(pubKey, recoveredPubKey)) {
-                            sigObj.v = Buffer.from([i + 27])
-                            break
-                        }
-                    }
+        var sigObj = {
+            r: sig.slice(0, 32),
+            s: sig.slice(32, 64)
+        }
 
-                    console.debug("secp256k1 verify: " + secp256k1.verify(msgHash, sig, pubKey))
-                    resolve(sigObj)
-                })
-            })
-        })
+        for (var i = 0; i < 4; i++) {
+            const recoveredPubKey = secp256k1.recover(msgHash, sig, i, false)
+            if (_.isEqual(pubKey, recoveredPubKey)) {
+                sigObj.v = Buffer.from([i + 27])
+                break
+            }
+        }
+
+        console.debug("secp256k1 verify: " + secp256k1.verify(msgHash, sig, pubKey))
+        return sigObj
     }
     return Extensions
 }()
