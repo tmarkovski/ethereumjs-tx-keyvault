@@ -6,26 +6,48 @@
 ## Example usage
 
 ````javascript
-const TxExtensions = require("ethereumjs-tx-keyvault")
-
+const txExt = require("ethereumjs-tx-keyvault")
 const KeyVault = require("azure-keyvault")
 const EthereumTx = require("ethereumjs-tx")
+const AuthenticationContext = require("adal-node").AuthenticationContext;
 
-const client = KeyVault.createKeyVaultClient(/* client credentials */)
+const clientId = "<to-be-filled>";
+const clientSecret = "<to-be-filled>";
+const vaultUri = "<to-be-filled>";
 
-const txParams = {
-    nonce: '0x34f', // Replace by nonce for your account on geth node
-    gasPrice: '0x09184e72a000',
-    gasLimit: '0x27100',
-    to: '0x0d8e50b8849f59f25078bb9e2d9014b9a540dcab',
-    value: '0xde0b6b3a7640000'
+// Setup key vault client and credentials
+const authenticator = function (challenge, callback) {
+    const context = new AuthenticationContext(challenge.authorization);
+    return context.acquireTokenWithClientCredentials(challenge.resource, clientId, clientSecret, function (err, tokenResponse) {
+        if (err) throw err
+        const authorizationValue = tokenResponse.tokenType + ' ' + tokenResponse.accessToken
+        return callback(null, authorizationValue)
+    })
 }
-var transaction = new EthereumTx(txParams)
+const credentials = new KeyVault.KeyVaultCredentials(authenticator)
+const client = new KeyVault.KeyVaultClient(credentials);
 
-TxExtensions.sign(transaction, client, "your_vault_uri", "your_key_name", "your_key_version")
+// Create a sample transaction
+const txParams = {
+    nonce: '0x00',
+    gasPrice: '0x09184e72a000',
+    gasLimit: '0x2710',
+    to: '0x0000000000000000000000000000000000000000',
+    value: '0x00',
+    data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',
+    // EIP 155 chainId - mainnet: 1, ropsten: 3
+    chainId: 3
+}
+const tx = new EthereumTx(txParams)
+
+// Sign the transaction and log verification results
+txExt.sign(tx, client, vaultUri, "alice", "")
     .then(signature => {
-        Object.assign(transaction, signature)
+        Object.assign(tx, signature)
+        console.log("Signature verification: " + tx.verifySignature())
 
-        console.log("Transaction verified: " + transaction.verifySignature())
-     })
+        // Print transaction hash. Can be sent directly to geth using 'sendRawTransaction'
+        const txHash = "0x" + Buffer.from(tx.serialize()).toString("hex")
+        console.log("Transaction hash: " + txHash)
+    })
   ````
