@@ -51,3 +51,8 @@ txExt.sign(tx, client, vaultUri, "alice", "")
         console.log("Transaction hash: " + txHash)
     })
   ````
+
+## .NET backend support for Key Vault
+Check out the samples in F# for .NET standard
+
+[https://github.com/tmarkovski/ethereum-key-vault](https://github.com/tmarkovski/ethereum-key-vault)
