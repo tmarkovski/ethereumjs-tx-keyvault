@@ -14,37 +14,29 @@ var isHigh = function (num) {
     return num.ucmp(HALF_CURVE_ORDER) === 1
 }
 
-var makeCanonical = function(buffer) {
+var makeCanonical = function (buffer) {
     var r = new BN(buffer.slice(0, 32))
     var s = new BN(buffer.slice(32, 64))
 
     if (isHigh(s)) {
         s = CURVE_ORDER.sub(s)
     }
-    return Buffer.concat([ r.toBuffer(), s.toBuffer() ])
+    return Buffer.concat([r.toBuffer(), s.toBuffer()])
 }
-
-const txParams = {
-    nonce: '0x34f', // Replace by nonce for your account on geth node
-    gasPrice: '0x09184e72a000',
-    gasLimit: '0x27100',
-    to: '0x0d8e50b8849f59f25078bb9e2d9014b9a540dcab',
-    value: '0xde0b6b3a7640000'
-};
 
 var Extensions = function () {
     function Extensions() {
     }
 
-/**
- * Signs a transaction using azure key vault
- * @param {EthereumTx} tx the transaction object to sign
- * @param {KeyVault.KeyVaultClient} client the key vault client object
- * @param {String} vaultUri the vault URI
- * @param {String} keyName the name of the EC key
- * @param {String} keyVersion the version of the key
- * @return {Buffer} the signed transaction object
- */
+    /**
+     * Signs a transaction using azure key vault
+     * @param {EthereumTx} tx the transaction object to sign
+     * @param {KeyVault.KeyVaultClient} client the key vault client object
+     * @param {String} vaultUri the vault URI
+     * @param {String} keyName the name of the EC key
+     * @param {String} keyVersion the version of the key
+     * @return {Buffer} the signed transaction object
+     */
     Extensions.prototype.sign = function (tx, client, vaultUri, keyName, keyVersion) {
         assert.equal(true, tx instanceof EthereumTx, "Transaction must be of type 'require(\"ethereumjs-tx\")'")
         assert.equal(true, client instanceof KeyVault.KeyVaultClient, "Client must be of type 'require(\"azure-keyvault\").KeyVaultClient'")
@@ -62,11 +54,11 @@ var Extensions = function () {
                         reject(signErr)
                         return
                     }
-                    const pubKey = Buffer.concat([ Uint8Array.from([4]), getKeyBundle.key.x, getKeyBundle.key.y])
+                    const pubKey = Buffer.concat([Uint8Array.from([4]), getKeyBundle.key.x, getKeyBundle.key.y])
                     const sig = makeCanonical(Buffer.from(signature.result))
 
-                    var sigObj = { 
-                        r: sig.slice(0, 32), 
+                    var sigObj = {
+                        r: sig.slice(0, 32),
                         s: sig.slice(32, 64)
                     }
 
