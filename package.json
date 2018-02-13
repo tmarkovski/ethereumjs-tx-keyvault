@@ -1,6 +1,6 @@
 {
   "name": "ethereumjs-tx-keyvault",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Azure Key Vault extensions for ethereumjs-tx",
   "main": "index.js",
   "scripts": {
