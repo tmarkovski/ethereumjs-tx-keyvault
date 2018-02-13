@@ -1,0 +1,30 @@
+{
+  "name": "ethereumjs-tx-keyvault",
+  "version": "1.0.1",
+  "description": "Azure Key Vault extensions for ethereumjs-tx",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmarkovski/ethereumjs-tx-keyvault.git"
+  },
+  "keywords": [
+    "ethereum",
+    "keyvault"
+  ],
+  "author": "Tomislav Markovski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tmarkovski/ethereumjs-tx-keyvault/issues"
+  },
+  "homepage": "https://github.com/tmarkovski/ethereumjs-tx-keyvault#readme",
+  "dependencies": {
+    "azure-keyvault": "^3.0.0-preview",
+    "bn.js": "^4.11.8",
+    "ethereumjs-tx": "^1.3.3",
+    "secp256k1": "^3.5.0",
+    "underscore": "^1.8.3"
+  }
+}
