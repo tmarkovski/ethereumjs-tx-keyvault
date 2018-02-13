@@ -1,5 +1,5 @@
 # Extensions to ethereumjs-tx adding transaction signing support using Azure Key Vault
-
+[![Build Status](https://travis-ci.org/tmarkovski/ethereumjs-tx-keyvault.svg?branch=master)](https://travis-ci.org/tmarkovski/ethereumjs-tx-keyvault)
 ## Installation
 `npm install ethereumjs-tx-keyvault`
 
