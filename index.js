@@ -48,6 +48,9 @@ const sign = async function (tx, client, vaultUri, keyName, keyVersion) {
     const signResult = await client.sign(vaultUri, keyName, keyVersion, "ECDSA256", msgHash)
     const signature = makeCanonical(Buffer.from(signResult.result))
 
+    // Sanity check
+    console.debug("secp256k1 verify: " + secp256k1.verify(msgHash, signature, pubKey))
+
     let v = -1
     // Recover the public key by comparing the recovered key with the actual public key.
     // If a match is found, that's the value of 'v'
@@ -59,7 +62,6 @@ const sign = async function (tx, client, vaultUri, keyName, keyVersion) {
         }
     }
     assert.equal(true, v === 0 || v === 1)
-    console.debug("secp256k1 verify: " + secp256k1.verify(msgHash, signature, pubKey))
 
     // As per the EIP-155 spec, the value of 'v' is also dependent on the chain id.
     // See: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#specification
